@@ -3,5 +3,5 @@ document.addEventListener("DOMContentLoaded", () => {
   const navItemsContainer = document.getElementById("nav-items-container");
   menuToggleBtn.addEventListener("click", () => {
     navItemsContainer.classList.toggle("-translate-x-full");
-  })
-})
+  });
+});
