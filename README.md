@@ -136,6 +136,10 @@ This route will validate all data and create user if successful. On success, use
 
 ## GET `/login`
 
+This page will have a form to login with email and password.
+
+## POST `/login`
+
 This is a route that will call passport authenticate and on success will redirect to GET `/dashboard`
 
 ## GET `/logout`

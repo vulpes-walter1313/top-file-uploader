@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 import db from "../db/db";
 import asyncHandler from "express-async-handler";
 import { body, matchedData, validationResult } from "express-validator";
+import passport from "passport";
 
 export const indexGet = (req: Request, res: Response, next: NextFunction) => {
   res.render("index", { title: "Welcome to File Uploader" });
@@ -72,3 +73,48 @@ export const signupPost = [
     return;
   }),
 ];
+
+export const loginGet = (req: Request, res: Response, next: NextFunction) => {
+  res.render("login", { title: "Login to File Uploader" });
+};
+
+export const loginPost = [
+  body("username")
+    .notEmpty()
+    .withMessage("Please provide your email")
+    .custom(async (val) => {
+      const dbUser = await db.user.findUnique({
+        where: {
+          email: val,
+        },
+      });
+      if (!dbUser) {
+        throw new Error("Email is not registered");
+      }
+    }),
+  body("password").notEmpty().withMessage("Please provide your password"),
+  (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    if (!valResult.isEmpty()) {
+      const validErrors = valResult.mapped();
+      res.render("login", { title: "Login to File Uploader", validErrors });
+      return;
+    } else {
+      next();
+    }
+  },
+  passport.authenticate("local", {
+    successRedirect: "/dashboard",
+    failureRedirect: "/login",
+  }),
+];
+
+export const logoutGet = (req: Request, res: Response, next: NextFunction) => {
+  req.logout((err) => {
+    if (err) {
+      next(err);
+      return;
+    }
+    res.redirect("/");
+  });
+};
