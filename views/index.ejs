@@ -3,7 +3,17 @@
 <head>
   <%- include("partials/head") %>
 </head>
-<body>
-  <h1 class="text-5xl font-bold text-emerald-600">Hello from File Uploader</h1>
+<body class="bg-slate-50">
+  <%- include("partials/navbar") %>
+  <section class="p-4 flex flex-col gap-10 py-14 items-center justify-center bg-slate-50 md:py-20">
+    <div class="flex flex-col gap-6">
+      <h1 class="text-4xl font-bold text-slate-950 md:text-6xl">Upload a file, Share a File</h1>
+      <p class="text-slate-800 text-lg font-medium md:text-xl md:text-center">Free your time and mind by delivering your files with ease!</p>
+    </div>
+    <div class="flex gap-8 justify-center">
+      <a href="/login" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Login</a>
+      <a href="/signup" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Sign Up</a>
+    </div>
+  </section>
 </body>
 </html>

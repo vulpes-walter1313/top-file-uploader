@@ -1,0 +1,27 @@
+<nav class="w-full bg-slate-50 flex justify-between items-center p-4 border-b border-slate-300 relative">
+  <p class="text-2xl font-bold text-slate-950">File Uploader</p>
+  <div id="nav-items-container" class="absolute top-[64px] left-0 w-full h-[calc(100vh-64px)] px-4 flex flex-col gap-4 justify-center items-center bg-slate-50 -translate-x-full transition-all md:static md:flex-row md:h-auto md:w-auto md:translate-x-0">
+    <% if(locals.currentUser) { %>
+    <a href="/dashboard" class="font-medium text-slate-900">Dashboard</a>  
+    <a href="/folders" class="font-medium text-slate-900">Folders</a>  
+    <a href="/files" class="font-medium text-slate-900">Files</a>  
+    <a href="/my-shares" class="font-medium text-slate-900">Shares</a>  
+    <a href="/logout" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Log Out</a>
+    <% } else { %>
+    <a href="/login" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Login</a>
+    <a href="/signup" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Sign Up</a>
+    <% } %>
+  </div>
+  <div id="nav-menu-toggle" class="md:hidden">
+    <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g clip-path="url(#clip0_2_5294)">
+      <path fill-rule="evenodd" clip-rule="evenodd" d="M0 6.02857C0 5.46051 0.460507 5 1.02857 5H22.9714C23.5395 5 24 5.46051 24 6.02857C24 6.59664 23.5395 7.05714 22.9714 7.05714H1.02857C0.460507 7.05714 0 6.59664 0 6.02857ZM0 12.8204C0 12.2523 0.460507 11.7918 1.02857 11.7918H22.9714C23.5395 11.7918 24 12.2523 24 12.8204C24 13.3885 23.5395 13.849 22.9714 13.849H1.02857C0.460507 13.849 0 13.3885 0 12.8204ZM0 19.6122C0 19.0442 0.460507 18.5837 1.02857 18.5837H22.9714C23.5395 18.5837 24 19.0442 24 19.6122C24 20.1803 23.5395 20.6408 22.9714 20.6408H1.02857C0.460507 20.6408 0 20.1803 0 19.6122Z" fill="black"/>
+      </g>
+      <defs>
+      <clipPath id="clip0_2_5294">
+      <rect width="24" height="24" fill="white" transform="translate(0.25 0.5)"/>
+      </clipPath>
+      </defs>
+      </svg>
+  </div>
+</nav>
