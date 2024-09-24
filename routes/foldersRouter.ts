@@ -8,4 +8,6 @@ router.get("/", foldersController.foldersGet);
 router.get("/create", foldersController.foldersCreateGet);
 router.post("/create", foldersController.foldersCreatePost);
 
+router.get("/:folderId", foldersController.folderGet);
+
 export default router;

@@ -1,8 +1,10 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { body, validationResult, matchedData } from "express-validator";
+import { body, validationResult, matchedData, param } from "express-validator";
 import { isLoggedIn } from "../middleware/auth";
 import asyncHandler from "express-async-handler";
 import db from "../db/db";
+import HttpError from "../lib/HttpError";
+import { injectHEIntoRes } from "../middleware/utils";
 export const foldersGet = (req: Request, res: Response, next: NextFunction) => {
   res.render("index", { title: "Your folders" });
 };
@@ -54,5 +56,46 @@ export const foldersCreatePost = [
     });
 
     res.status(200).redirect(`/folders/${newFolder.id}`);
+  }),
+];
+
+export const folderGet = [
+  isLoggedIn,
+  param("folderId").isUUID(),
+  injectHEIntoRes,
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      const error = new HttpError("That folder id does not exist", 400);
+      console.log(
+        "foldersController.ts -> folderGet() -> data, error",
+        data,
+        error,
+      );
+      next(error);
+      return;
+    }
+
+    const folder = await db.folder.findUnique({ where: { id: data.folderId } });
+    if (!folder) {
+      const error = new HttpError("Folder does not exist", 404);
+      console.log(
+        "foldersController.ts -> folderGet() -> !folder ->data, error",
+        data,
+        error,
+      );
+      next(error);
+      return;
+    }
+    const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+    if (!canView) {
+      const error = new HttpError("You are not authorized", 403);
+      next(error);
+      return;
+    }
+
+    res.render("folder", { title: `${folder?.name}`, folder: folder });
   }),
 ];
