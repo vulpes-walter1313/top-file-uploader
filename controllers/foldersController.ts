@@ -4,7 +4,12 @@ import { isLoggedIn } from "../middleware/auth";
 import asyncHandler from "express-async-handler";
 import db from "../db/db";
 import HttpError from "../lib/HttpError";
-import { injectHEIntoRes, upload } from "../middleware/utils";
+import {
+  injectDateTimeIntoLocals,
+  injectFormatBytesIntoLocals,
+  injectHEIntoLocals,
+  upload,
+} from "../middleware/utils";
 export const foldersGet = (req: Request, res: Response, next: NextFunction) => {
   res.render("index", { title: "Your folders" });
 };
@@ -62,7 +67,9 @@ export const foldersCreatePost = [
 export const folderGet = [
   isLoggedIn,
   param("folderId").isUUID(),
-  injectHEIntoRes,
+  injectHEIntoLocals,
+  injectFormatBytesIntoLocals,
+  injectDateTimeIntoLocals,
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const valResult = validationResult(req);
     const data = matchedData(req);
@@ -78,7 +85,10 @@ export const folderGet = [
       return;
     }
 
-    const folder = await db.folder.findUnique({ where: { id: data.folderId } });
+    const folder = await db.folder.findUnique({
+      where: { id: data.folderId },
+      include: { files: true },
+    });
     if (!folder) {
       const error = new HttpError("Folder does not exist", 404);
       console.log(
@@ -102,7 +112,7 @@ export const folderGet = [
 
 export const folderUploadGet = [
   isLoggedIn,
-  injectHEIntoRes,
+  injectHEIntoLocals,
   param("folderId").isUUID(),
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const valResult = validationResult(req);

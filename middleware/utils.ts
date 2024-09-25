@@ -2,8 +2,10 @@ import { type Request, type Response, type NextFunction } from "express";
 import he from "he";
 import multer from "multer";
 import cuid from "@paralleldrive/cuid2";
+import { formatBytes } from "../lib/utils";
+import { DateTime } from "luxon";
 
-export function injectHEIntoRes(
+export function injectHEIntoLocals(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -23,3 +25,21 @@ const storage = multer.diskStorage({
 });
 
 export const upload = multer({ storage: storage });
+
+export function injectFormatBytesIntoLocals(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  res.locals.formatBytes = formatBytes;
+  next();
+}
+
+export function injectDateTimeIntoLocals(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  res.locals.DateTime = DateTime;
+  next();
+}

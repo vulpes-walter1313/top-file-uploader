@@ -10,15 +10,31 @@
       <h1 class="text-2xl font-bold text-slate-950 md:text-4xl"><%= decode(locals.folder.name) %></h1>
       <p class="text-slate-800 text-lg md:text-xl md:text-center"><%= decode(locals.folder.description) %></p>
     </div>
-    <div class="flex flex-col gap-8 justify-center max-w-screen-lg mx-auto md:flex-row">
-      <div class="flex flex-col gap-4 p-6 w-full max-w-52 items-start">
+    <div class="grid gap-8 justify-center max-w-screen-lg mx-auto md:grid-cols-8">
+      <div class="flex flex-col gap-4 p-6 w-full items-start md:col-span-2">
         <a href="/folders/<%= folder.id %>/upload" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Upload Files</a>
         <a href="/folders/<%= folder.id %>/share" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Share Folder</a>
         <a href="/folders/<%= folder.id %>/update" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Edit Folder</a>
         <a href="/folders/<%= folder.id %>/delete" class="text-red-700 block leading-none">Delete Folder</a>
       </div>
-      <div class="w-full max-w-[37.5rem]">
-        <% if (locals.files) { %>
+      <div class="w-full md:col-span-6 flex flex-col gap-6 md:flex-row md:flex-wrap">
+        <% if (locals.folder.files && locals.folder.files.length > 0) { %>
+          <% locals.folder.files.map(file => { %>
+            <div class="flex flex-col justify-between bg-white rounded-md shadow-md p-3 w-48 gap-3">
+              <div class="text-slate-900">
+                <p class="text-lg font-medium "><%= decode(file.name) %></p>
+                <p class="font-light text-sm"><span class="text-xs">Last update:</span> <%= DateTime.fromJSDate(file.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
+                <p class="font-light text-sm"><span class="text-xs">Size:</span> <%= formatBytes(file.size) %></p>
+                <% if (file.description) { %>
+                  <p class="font-light text-sm"><%= decode(file.description)%></p>
+                <% } %>
+              </div>
+              <div class="flex flex-row justify-between">
+                <a href="/files/<%= file.id%>/update" class="p-1 bg-white border border-slate-200 shadow-md rounded-md flex justify-center items-center hover:bg-slate-100"><svg class="fill-slate-900 h-6 w-6" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" d="M0 0h24v24H0z"></path><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg></a>
+                <a href="/files/<%= file.id%>/delete" class="p-1 bg-red-100 border border-red-200 shadow-md rounded-md flex justify-center items-center hover:bg-red-200"><svg class="fill-red-700 h-6 w-6" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"></path></svg></a>
+              </div>
+            </div>
+          <% }) %>
         <% } else { %>
           <p class="text-slate-800">You don't have any files here yet. Upload some to start sharing files.</p>
         <% } %>
