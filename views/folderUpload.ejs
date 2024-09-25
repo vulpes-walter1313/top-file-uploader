@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/head") %>
+</head>
+<body class="bg-slate-50">
+  <%- include("partials/navbar") %>
+  <section class="p-4 flex flex-col gap-10 py-14 items-center justify-center bg-slate-50 md:py-20">
+    <div class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold text-slate-950 md:text-4xl md:text-center">Upload files to <%= decode(folder.name) %></h1>
+    </div>
+    <form action="/folders/<%= folder.id %>/upload" enctype="multipart/form-data" method="POST" class="p-6 flex flex-col gap-4 w-full max-w-sm bg-white border border-slate-300 shadow-lg rounded-xl">
+      <div class="flex flex-col gap-1">
+        <label for="files" class="text-slate-800">Files <span class="text-xs">(up to 5 max)</span></label>
+        <input 
+          type="file"
+          name="files"
+          id="files"
+          multiple
+          class="text-slate-900 rounded-md text-lg bg-slate-50 border border-slate-300  placeholder:text-slate-500 px-4 py-2"
+          />
+      </div>
+      <% if (locals.validErrors?.username) { %>
+        <p class="p-2 bg-red-50 border border-red-100 text-red-900 rounded-md"><%= locals.validErrors.username?.msg%></p>    
+      <% } %>
+      <button type="submit" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Upload Files</a>
+    </form>
+  </section>
+</body>
+</html>

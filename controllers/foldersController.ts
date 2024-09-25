@@ -4,7 +4,7 @@ import { isLoggedIn } from "../middleware/auth";
 import asyncHandler from "express-async-handler";
 import db from "../db/db";
 import HttpError from "../lib/HttpError";
-import { injectHEIntoRes } from "../middleware/utils";
+import { injectHEIntoRes, upload } from "../middleware/utils";
 export const foldersGet = (req: Request, res: Response, next: NextFunction) => {
   res.render("index", { title: "Your folders" });
 };
@@ -97,5 +97,100 @@ export const folderGet = [
     }
 
     res.render("folder", { title: `${folder?.name}`, folder: folder });
+  }),
+];
+
+export const folderUploadGet = [
+  isLoggedIn,
+  injectHEIntoRes,
+  param("folderId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("folderId is not a valid Id", 400));
+      return;
+    }
+
+    const folder = await db.folder.findUnique({
+      where: {
+        id: data.folderId,
+      },
+    });
+
+    if (!folder) {
+      next(new HttpError("Folder does not exist", 404));
+      return;
+    }
+
+    const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+    if (!canView) {
+      next(
+        new HttpError("You are not authorized to access this resource", 403),
+      );
+      return;
+    }
+
+    res.render("folderUpload", {
+      title: `Upload files to ${folder.name}`,
+      folder: folder,
+    });
+  }),
+];
+
+export const folderUploadPost = [
+  isLoggedIn,
+  upload.array("files", 5),
+  param("folderId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("folderId is not a valid Id", 400));
+      return;
+    }
+
+    const folder = await db.folder.findUnique({
+      where: {
+        id: data.folderId,
+      },
+    });
+
+    if (!folder) {
+      next(new HttpError("Folder does not exist", 404));
+      return;
+    }
+
+    const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+    if (!canView) {
+      next(
+        new HttpError("You are not authorized to access this resource", 403),
+      );
+      return;
+    }
+
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const uploadData = req.files.map((file) => {
+        return {
+          fileUrl: file.path!,
+          name: file.originalname.split(".")[0],
+          extName: file.originalname.split(".").pop()!,
+          fileType: file.mimetype!,
+          size: file.size!,
+          createdBy: req.user?.id!,
+          folderId: folder.id,
+        };
+      });
+      await db.file.createMany({
+        data: uploadData,
+      });
+      res.send("files were uploaded");
+      return;
+    } else {
+      next(new HttpError("Error in uploading files", 500));
+      return;
+    }
   }),
 ];

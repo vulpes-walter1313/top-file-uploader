@@ -10,4 +10,7 @@ router.post("/create", foldersController.foldersCreatePost);
 
 router.get("/:folderId", foldersController.folderGet);
 
+router.get("/:folderId/upload", foldersController.folderUploadGet);
+router.post("/:folderId/upload", foldersController.folderUploadPost);
+
 export default router;
