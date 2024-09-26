@@ -196,7 +196,7 @@ export const folderUploadPost = [
       await db.file.createMany({
         data: uploadData,
       });
-      res.send("files were uploaded");
+      res.redirect(`/folders/${folder.id}`);
       return;
     } else {
       next(new HttpError("Error in uploading files", 500));
