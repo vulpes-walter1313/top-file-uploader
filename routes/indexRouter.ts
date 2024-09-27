@@ -14,4 +14,6 @@ router.post("/login", indexController.loginPost);
 
 router.get("/logout", indexController.logoutGet);
 
+router.get("/dashboard", indexController.dashboardGet);
+
 export default router;

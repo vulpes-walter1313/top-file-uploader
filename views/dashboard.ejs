@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/head") %>
+</head>
+<body class="bg-slate-50">
+  <%- include("partials/navbar") %>
+  <section class="p-4 flex flex-col gap-10 py-14 items-center justify-center bg-slate-50 md:py-20">
+    <div class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold text-slate-950 md:text-4xl md:text-center"><%= decode(locals.currentUser.firstName)%>&apos;s Dashboard</h1>
+    </div>
+    <div class="grid gap w-full max-w-screen-lg mx-auto md:grid-cols-8">
+      <aside class="flex flex-col items-start gap-8 p-6 md:col-span-2">
+        <div class="flex flex-col gap-4 items-start">
+          <a href="/folders" class="text-lg font-medium text-slate-900">All Folders</a>        
+          <a href="/files" class="text-lg font-medium text-slate-900">All Files</a>        
+          <a href="/my-shares" class="text-lg font-medium text-slate-900">All Shares</a>        
+        </div>
+        <div class="flex flex-col items-start gap-4">
+          <a href="/folders/create" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Create Folder</a>
+        </div>
+      </aside>
+      <main class="overflow-hidden md:col-span-6">
+        <!-- Folders-->
+        <div class="p-6 flex flex-col gap-8 overflow-clip">
+          <h2 class="text-lg">Recent Folders</h2>
+          <div class="flex gap-3 overflow-x-scroll py-2">
+            <% if (folders.length > 0) { %>
+              <% folders.map(folder => { %>
+                <a href="/folders/<%= folder.id %>" class="bg-white shadow-md min-w-44 w-fill max-w-48 border border-slate-300 rounded-md p-3 flex flex-col gap-3 text-slate-900">
+                  <div class="w-full py-4 flex justify-center items-center">
+                    <svg class="fill-slate-900 h-14 w-14" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"></path></svg>
+                  </div>
+                  <div class="flex flex-col gap-1 justify-between">
+                    <p class="text-lg font-medium truncate"><%- decode(folder.name) %></p>                
+                    <p class="text-sm font-light">Last update:<br><%= DateTime.fromJSDate(folder.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
+                  </div>
+                </a>
+              <% }) %>
+            <% } else { %>
+              <p class="text-slate-700">No folders have been created yet.</p>
+            <% } %>
+          </div>
+          <a href="/folders" class="flex items-center gap-2">See All Folders <svg class="fill-slate-900" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"></path></svg></a>
+        </div>
+        <!-- Files -->
+        <div class="p-6 flex flex-col gap-8 overflow-clip">
+          <h2 class="text-lg">Recent Files</h2>
+          <div class="flex gap-3 overflow-x-scroll py-2">
+            <% if (files.length > 0) { %>
+              <% files.map(file => { %>
+                <a href="/files/<%= file.id %>" class="bg-white shadow-md min-w-44 w-fill max-w-48 border border-slate-300 rounded-md p-3 flex flex-col gap-6 text-slate-900">
+                  <div class="w-full py-4 flex justify-center items-center">
+                    <% if (file.fileType.includes("image")) { %>
+                      <svg class="fill-slate-900 h-14 w-14" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M0 96C0 60.7 28.7 32 64 32H448c35.3 0 64 28.7 64 64V416c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V96zM323.8 202.5c-4.5-6.6-11.9-10.5-19.8-10.5s-15.4 3.9-19.8 10.5l-87 127.6L170.7 297c-4.6-5.7-11.5-9-18.7-9s-14.2 3.3-18.7 9l-64 80c-5.8 7.2-6.9 17.1-2.9 25.4s12.4 13.6 21.6 13.6h96 32H424c8.9 0 17.1-4.9 21.2-12.8s3.6-17.4-1.4-24.7l-120-176zM112 192a48 48 0 1 0 0-96 48 48 0 1 0 0 96z"></path></svg>
+                    <% } else { %>
+                      <svg class="fill-slate-900 h-14 w-14" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M312 155h91c2.8 0 5-2.2 5-5 0-8.9-3.9-17.3-10.7-22.9L321 63.5c-5.8-4.8-13-7.4-20.6-7.4-4.1 0-7.4 3.3-7.4 7.4V136c0 10.5 8.5 19 19 19z"></path><path d="M267 136V56H136c-17.6 0-32 14.4-32 32v336c0 17.6 14.4 32 32 32h240c17.6 0 32-14.4 32-32V181h-96c-24.8 0-45-20.2-45-45z"></path></svg>
+                    <% } %>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <p class="text-lg font-medium truncate"><%- decode(file.name) %></p>                
+                    <p class="text-sm font-light">Last update:<br><%= DateTime.fromJSDate(file.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
+                  </div>
+                </a>
+              <% }) %>
+            <% } else { %>
+              <p class="text-slate-700">There are no uploaded files.</p>
+            <% } %>
+          </div>
+          <a href="/files" class="flex items-center gap-2">See All Files <svg class="fill-slate-900" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"></path></svg></a>
+        </div>
+        <!-- Shares -->
+        <div class="p-6 flex flex-col gap-8 overflow-clip">
+          <h2 class="text-lg">Recent Shares</h2>
+          <div class="flex gap-3 overflow-x-scroll py-2">
+            <% if (shares.length > 0) { %>
+              <% shares.map(share => { %>
+                <a href="/my-shares/<%= share.id %>" class="bg-white shadow-md min-w-44 w-fill max-w-48 border border-slate-300 rounded-md p-3 flex flex-col gap-3 text-slate-900">
+                  <div class="w-full py-4 flex justify-center items-center">
+                    <svg class="fill-slate-900 h-14 w-14" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"></path></svg>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <p class="text-lg font-medium"><%- decode(share.folder.name) %></p>                
+                    <p class="text-sm font-light">Last update:<br><%= DateTime.fromJSDate(file.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
+                  </div>
+                </a>
+              <% }) %>
+            <% } else { %>
+              <p class="text-slate-700">There are no active shares.</p>
+            <% } %>
+          </div>
+          <a href="/my-shares" class="flex items-center gap-2">See All Shares <svg class="fill-slate-900" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-128-128c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l128-128z"></path></svg></a>
+        </div>
+      </main>
+    </div>
+  </section>
+</body>
+</html>

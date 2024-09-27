@@ -4,6 +4,11 @@ import db from "../db/db";
 import asyncHandler from "express-async-handler";
 import { body, matchedData, validationResult } from "express-validator";
 import passport from "passport";
+import { isLoggedIn } from "../middleware/auth";
+import {
+  injectDateTimeIntoLocals,
+  injectHEIntoLocals,
+} from "../middleware/utils";
 
 export const indexGet = (req: Request, res: Response, next: NextFunction) => {
   res.render("index", { title: "Welcome to File Uploader" });
@@ -118,3 +123,60 @@ export const logoutGet = (req: Request, res: Response, next: NextFunction) => {
     res.redirect("/");
   });
 };
+
+export const dashboardGet = [
+  isLoggedIn,
+  injectDateTimeIntoLocals,
+  injectHEIntoLocals,
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const foldersQuery = db.folder.findMany({
+      where: {
+        createdBy: req.user?.id,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      take: 6,
+    });
+    const filesQuery = db.file.findMany({
+      where: {
+        createdBy: req.user?.id,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      take: 6,
+    });
+    const sharesQuery = db.share.findMany({
+      where: {
+        createdBy: req.user?.id,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        folderShared: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 6,
+    });
+
+    const [folders, files, shares] = await Promise.all([
+      foldersQuery,
+      filesQuery,
+      sharesQuery,
+    ]);
+
+    res.render("dashboard", {
+      title: `${req.user?.firstName}'s Dashboard`,
+      folders,
+      files,
+      shares,
+    });
+  }),
+];
