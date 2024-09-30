@@ -1,5 +1,11 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { body, validationResult, matchedData, param } from "express-validator";
+import {
+  body,
+  validationResult,
+  matchedData,
+  param,
+  query,
+} from "express-validator";
 import { isLoggedIn } from "../middleware/auth";
 import asyncHandler from "express-async-handler";
 import db from "../db/db";
@@ -10,9 +16,115 @@ import {
   injectHEIntoLocals,
   upload,
 } from "../middleware/utils";
-export const foldersGet = (req: Request, res: Response, next: NextFunction) => {
-  res.render("index", { title: "Your folders" });
-};
+import { Prisma } from "@prisma/client";
+
+// /folders
+export const foldersGet = [
+  isLoggedIn,
+  injectHEIntoLocals,
+  injectDateTimeIntoLocals,
+  query("limit")
+    .optional()
+    .isInt({ min: 5, max: 20 })
+    .withMessage("Limit should be a whole number and between 5 and 20"),
+  query("q")
+    .optional()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage("search should be shorter than 50 characters"),
+  query("page").optional().isInt(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      const validErrors = valResult.mapped();
+      const totalFolders = await db.folder.count({
+        where: { createdBy: req.user?.id },
+      });
+      const totalPages = Math.ceil(totalFolders < 1 ? 1 : totalFolders / 10);
+      const pagesArr: number[] = Array.from({ length: totalPages }).map(
+        (_, idx) => idx + 1,
+      );
+      const folders = await db.folder.findMany({
+        where: {
+          createdBy: req.user?.id,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
+        take: 10,
+      });
+      const query = validErrors.q ? "" : data.q;
+      res.render("folders", {
+        title: `${req.user?.firstName}'s Folders`,
+        folders,
+        validErrors,
+        currentPage: 1,
+        limit: 10,
+        query: query,
+        pagesArr: pagesArr,
+      });
+      return;
+    }
+
+    let page = Number(data.page || "1");
+    const limit = Number(data.limit || "10");
+
+    const search: Prisma.FolderWhereInput = data.q
+      ? {
+          AND: [
+            {
+              createdBy: req.user?.id,
+            },
+            {
+              name: {
+                contains: data.q,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : {
+          createdBy: req.user?.id,
+        };
+    const totalFolders = await db.folder.count({
+      where: search,
+    });
+    const totalPages = Math.ceil(totalFolders / limit);
+    if (page > totalPages) page = totalPages < 1 ? 1 : totalPages;
+    const offset = (page - 1) * limit;
+    const pagesArr: { href: string; num: number }[] = Array.from({
+      length: totalPages,
+    }).map((_, idx) => {
+      const url = new URL("http://localhost:3000/folders");
+      url.searchParams.set("q", data.q);
+      url.searchParams.set("limit", limit.toString());
+      url.searchParams.set("page", (idx + 1).toString());
+      return {
+        href: url.href,
+        num: idx + 1,
+      };
+    });
+
+    const folders = await db.folder.findMany({
+      where: search,
+      orderBy: {
+        updatedAt: "desc",
+      },
+      take: limit,
+      skip: offset,
+    });
+    res.render("folders", {
+      title: "Your folders",
+      folders,
+      currentPage: page,
+      limit: limit,
+      query: data.q,
+      pagesArr: pagesArr,
+    });
+  }),
+];
 
 export const foldersCreateGet = [
   isLoggedIn,
