@@ -13,4 +13,7 @@ router.get("/:folderId", foldersController.folderGet);
 router.get("/:folderId/upload", foldersController.folderUploadGet);
 router.post("/:folderId/upload", foldersController.folderUploadPost);
 
+router.get("/:folderId/update", foldersController.folderUpdateGet);
+router.post("/:folderId/update", foldersController.folderUpdatePost);
+
 export default router;
