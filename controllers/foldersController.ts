@@ -304,7 +304,7 @@ export const folderUploadPost = [
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       const uploadData = req.files.map((file) => {
         return {
-          fileUrl: file.path!,
+          fileUrl: file.path!.slice(6),
           name: file.originalname.split(".")[0],
           extName: file.originalname.split(".").pop()!,
           fileType: file.mimetype!,
