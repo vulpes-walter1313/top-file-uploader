@@ -99,7 +99,9 @@ export const foldersGet = [
       length: totalPages,
     }).map((_, idx) => {
       const url = new URL("http://localhost:3000/folders");
-      url.searchParams.set("q", data.q);
+      if (data.q) {
+        url.searchParams.set("q", data.q);
+      }
       url.searchParams.set("limit", limit.toString());
       url.searchParams.set("page", (idx + 1).toString());
       return {
