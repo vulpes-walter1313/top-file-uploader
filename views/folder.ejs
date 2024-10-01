@@ -22,9 +22,11 @@
           <% locals.folder.files.map(file => { %>
             <div class="flex flex-col justify-between bg-white rounded-md shadow-md p-3 w-48 gap-3">
               <div class="text-slate-900">
-                <p class="text-lg font-medium "><%= decode(file.name) %></p>
-                <p class="font-light text-sm"><span class="text-xs">Last update:</span> <%= DateTime.fromJSDate(file.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
-                <p class="font-light text-sm"><span class="text-xs">Size:</span> <%= formatBytes(file.size) %></p>
+                <a href="/files/<%= file.id %>">
+                  <p class="text-lg font-medium "><%= decode(file.name) %></p>
+                  <p class="font-light text-sm"><span class="text-xs">Last update:</span> <%= DateTime.fromJSDate(file.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
+                  <p class="font-light text-sm"><span class="text-xs">Size:</span> <%= formatBytes(file.size) %></p>
+                </a>
                 <% if (file.description) { %>
                   <p class="font-light text-sm"><%= decode(file.description)%></p>
                 <% } %>
