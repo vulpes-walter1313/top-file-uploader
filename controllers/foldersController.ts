@@ -198,11 +198,11 @@ export const folderGet = [
 
     if (!valResult.isEmpty()) {
       const error = new HttpError("That folder id does not exist", 400);
-      console.log(
-        "foldersController.ts -> folderGet() -> data, error",
-        data,
-        error,
-      );
+      // console.log(
+      //   "foldersController.ts -> folderGet() -> data, error",
+      //   data,
+      //   error,
+      // );
       next(error);
       return;
     }
@@ -213,11 +213,11 @@ export const folderGet = [
     });
     if (!folder) {
       const error = new HttpError("Folder does not exist", 404);
-      console.log(
-        "foldersController.ts -> folderGet() -> !folder ->data, error",
-        data,
-        error,
-      );
+      // console.log(
+      //   "foldersController.ts -> folderGet() -> !folder ->data, error",
+      //   data,
+      //   error,
+      // );
       next(error);
       return;
     }
@@ -317,6 +317,12 @@ export const folderUploadPost = [
       });
       await db.file.createMany({
         data: uploadData,
+      });
+      await db.folder.update({
+        where: { id: folder.id },
+        data: {
+          updatedAt: new Date(Date.now()),
+        },
       });
       res.redirect(`/folders/${folder.id}`);
       return;
@@ -443,6 +449,7 @@ export const folderUpdatePost = [
       data: {
         name: data.name,
         description: data.description,
+        updatedAt: new Date(Date.now()),
       },
     });
     res.redirect(`/folders/${folder.id}`);
