@@ -177,3 +177,105 @@ export const fileGet = [
     res.render("file", { title: he.decode(file.name), file: file });
   }),
 ];
+
+// GET /files/:fileId/update
+export const fileUpdateGet = [
+  isLoggedIn,
+  injectHEIntoLocals,
+  param("fileId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("fileId is not a valid id", 400));
+      return;
+    }
+    const file = await db.file.findUnique({
+      where: {
+        id: data.fileId,
+      },
+    });
+
+    if (!file) {
+      next(new HttpError("File not found", 404));
+      return;
+    }
+
+    const canView = req.user?.isAdmin || req.user?.id === file.createdBy;
+    if (!canView) {
+      next(new HttpError("You are not authorized to view this resource", 403));
+      return;
+    }
+
+    res.render("fileUpdate", { title: `Updating ${file.name}`, file });
+  }),
+];
+
+// POST /files/:fileId/update
+export const fileUpdatePost = [
+  isLoggedIn,
+  param("fileId").isUUID(),
+  body("name")
+    .trim()
+    .isLength({ min: 3, max: 64 })
+    .withMessage("name should be between 3 and 64 characters")
+    .escape(),
+  body("description")
+    .optional()
+    .trim()
+    .isLength({ max: 256 })
+    .withMessage("description should not be longer than 256 characters")
+    .escape(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      const validErrors = valResult.mapped();
+      if (validErrors.fileId) {
+        next(new HttpError("fileId is not a valid id", 400));
+        return;
+      }
+      const file = await db.file.findUnique({ where: { id: data.fileId } });
+      if (!file) {
+        next(new HttpError("File does not exist", 404));
+        return;
+      }
+      const canView = req.user?.isAdmin || req.user?.id === file.createdBy;
+      if (!canView) {
+        next(
+          new HttpError("You are not authorized to access this resource", 403),
+        );
+        return;
+      }
+      res.locals.decode = he.decode;
+      res.render("fileUpdate", {
+        title: `Update ${file.name}`,
+        file,
+        validErrors,
+      });
+    }
+    // no validation errors
+
+    const file = await db.file.findUnique({ where: { id: data.fileId } });
+    if (!file) {
+      next(new HttpError("File does not exist", 404));
+      return;
+    }
+    const canView = req.user?.isAdmin || req.user?.id === file.createdBy;
+    if (!canView) {
+      next(new HttpError("You are not authorized to acess this resource", 403));
+      return;
+    }
+    await db.file.update({
+      where: { id: file.id },
+      data: {
+        name: data.name,
+        description: data.description,
+        updatedAt: new Date(Date.now()),
+      },
+    });
+    res.redirect(`/files/${file.id}`);
+  }),
+];

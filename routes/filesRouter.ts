@@ -7,4 +7,7 @@ router.get("/", filesController.filesGet);
 
 router.get("/:fileId", filesController.fileGet);
 
+router.get("/:fileId/update", filesController.fileUpdateGet);
+router.post("/:fileId/update", filesController.fileUpdatePost);
+
 export default router;
