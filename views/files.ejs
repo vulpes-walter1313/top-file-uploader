@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/head") %>
+</head>
+<body class="bg-slate-50">
+  <%- include("partials/navbar") %>
+  <section class="p-4 flex flex-col gap-10 py-14 items-center justify-center bg-slate-50 md:py-20">
+    <div class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold text-slate-950 md:text-4xl md:text-center"><%= decode(locals.currentUser.firstName)%>&apos;s files</h1>
+      <% if (locals.query) { %>
+        <p class="text-lg text-slate-700">Searching for &apos;<%= locals.query %>&apos;</p>
+      <% } %>
+    </div>
+    <div class="grid gap w-full max-w-screen-lg mx-auto md:grid-cols-8">
+      <aside class="flex flex-col items-start gap-8 p-6 md:col-span-2">
+        <div class="flex flex-col gap-4 items-start">
+          <p class="text-slate-900">To upload a file, go to the folder you want to add the files in.</p>
+          <a href="/folders" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Go To Folders</a>
+        </div>
+        <form action="/files" method="get" class="flex flex-col items-start gap-4 w-full">
+          <div class="flex flex-col gap-2 justify-start">
+            <label class="text-sm text-slate-700" for="limit">Results per page</label>
+            <input
+              type="number"
+              name="limit"
+              id="limit"
+              value="<%= locals.limit ? locals.limit : "10" %>"
+              class="text-slate-900 border border-slate-300 rounded-md w-32 px-4 py-2"/>
+              <% if (locals.validErrors?.limit) { %>
+                <p class="p-2 border border-red-200 bg-red-50 text-red-800 rounded-md text-sm"><%= locals.validErrors?.limit?.msg %></p>
+              <% } %>
+          </div>
+          <div class="flex flex-col gap-2 justify-start">
+            <label class="text-sm text-slate-700" for="q">Search by Name</label>
+            <input
+              type="text"
+              name="q"
+              id="q"
+              class="text-slate-900 w-full border border-slate-300 rounded-md px-4 py-2"
+              value="<%= locals.query ? locals.query : "" %>"/>
+              <% if (locals.validErrors?.q) { %>
+                <p class="p-2 border border-red-200 bg-red-50 text-red-800 rounded-md text-sm"><%= locals.validErrors?.q?.msg %></p>
+              <% } %>
+          </div>
+          <button type="submit" class="bg-slate-50 text-slate-800 border-2 border-slate-800 w-full text-lg px-6 py-2 rounded-xl block leading-none">Search</button>
+        </form>
+      </aside>
+      <main class="md:col-span-6">
+        <!-- Files-->
+        <div class="p-6 flex flex-col gap-8 overflow-clip">
+          <h2 class="text-lg">Recent Files</h2>
+          <div class="grid grid-cols-[repeat(auto-fill,_minmax(11rem,_1fr))] gap-3 py-2">
+            <% if (files.length > 0) { %>
+              <% files.map(file => { %>
+                <div class="bg-white shadow-md w-fill border border-slate-300 rounded-md p-3 flex flex-col justify-between gap-3 text-slate-900">
+                  <div class="w-full py-4 flex justify-center items-center">
+                    <% if (file.fileType.includes("image")) { %>
+                      <img src="<%= file.fileUrl %>" alt="<%= file.description %>" class="w-28 h-auto rounded-md">
+                    <% } else { %>
+                      <svg class="fill-slate-900 w-28 h-auto" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M312 155h91c2.8 0 5-2.2 5-5 0-8.9-3.9-17.3-10.7-22.9L321 63.5c-5.8-4.8-13-7.4-20.6-7.4-4.1 0-7.4 3.3-7.4 7.4V136c0 10.5 8.5 19 19 19z"></path><path d="M267 136V56H136c-17.6 0-32 14.4-32 32v336c0 17.6 14.4 32 32 32h240c17.6 0 32-14.4 32-32V181h-96c-24.8 0-45-20.2-45-45z"></path></svg>
+                    <% } %>
+                  </div>
+                  <div class="flex flex-col gap-1 justify-between">
+                    <a href="/files/<%= file.id %>" class="contents">
+                      <p class="text-lg font-medium truncate"><%= decode(file.name) %></p>                
+                      <p class="text-sm font-light">Last update:<br><%= DateTime.fromJSDate(file.updatedAt).toLocaleString(DateTime.DATE_MED) %></p>
+                      <p class="text-sm font-light">Folder:<br><%= decode(file.inFolder.name) %></p>
+                    </a>
+                    <div class="flex flex-row justify-between pt-2">
+                      <a href="/files/<%= file.id%>/update" class="p-1 bg-white border border-slate-200 shadow-md rounded-md flex justify-center items-center hover:bg-slate-100"><svg class="fill-slate-900 h-6 w-6" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path fill="none" d="M0 0h24v24H0z"></path><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg></a>
+                      <a href="/files/<%= file.id%>/delete" class="p-1 bg-red-100 border border-red-200 shadow-md rounded-md flex justify-center items-center hover:bg-red-200"><svg class="fill-red-700 h-6 w-6" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"></path></svg></a>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p class="text-slate-700">No files have been created yet.</p>
+            <% } %>
+          </div>
+        </div>
+        <div class="flex gap-4 justify-center">
+          <% locals.pagesArr.map( item => { %>
+            <a href="<%- item.href %>" class="leading-none text-slate-800 border border-slate-300 rounded-md bg-white shadow-md p-2"><%= item.num %></a>
+          <% }) %>
+        </div>
+     </main>
+    </div>
+  </section>
+</body>
+</html>
