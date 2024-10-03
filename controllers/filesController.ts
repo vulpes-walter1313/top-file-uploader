@@ -17,6 +17,8 @@ import {
   injectHEIntoLocals,
 } from "../middleware/utils";
 import { Prisma } from "@prisma/client";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 export const filesGet = [
   isLoggedIn,
@@ -277,5 +279,92 @@ export const fileUpdatePost = [
       },
     });
     res.redirect(`/files/${file.id}`);
+  }),
+];
+
+// GET /files/:fileId/delete
+export const fileDeleteGet = [
+  isLoggedIn,
+  injectFormatBytesIntoLocals,
+  injectDateTimeIntoLocals,
+  injectHEIntoLocals,
+  param("fileId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("fileId is not a valid id", 400));
+      return;
+    }
+    const file = await db.file.findUnique({
+      where: {
+        id: data.fileId,
+      },
+      include: {
+        inFolder: true,
+      },
+    });
+    if (!file) {
+      next(new HttpError("File does not exist", 404));
+      return;
+    }
+    const canView = req.user?.isAdmin || req.user?.id === file.createdBy;
+
+    if (!canView) {
+      next(new HttpError("You are not authorized to acces this resource", 403));
+      return;
+    }
+
+    res.render("fileDelete", {
+      title: `Deleting ${he.decode(file.name)}`,
+      file,
+    });
+  }),
+];
+
+// POST /files/:fileId/delete
+export const fileDeletePost = [
+  isLoggedIn,
+  param("fileId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("fileId is not a valid id", 400));
+      return;
+    }
+    const file = await db.file.findUnique({
+      where: {
+        id: data.fileId,
+      },
+    });
+    if (!file) {
+      next(new HttpError("File doesn't exist", 404));
+      return;
+    }
+
+    const canView = req.user?.isAdmin || req.user?.id === file.createdBy;
+    if (!canView) {
+      next(new HttpError("You are not authorized to perform this action", 403));
+      return;
+    }
+
+    try {
+      const filePath = `./public${file.fileUrl}`;
+      await fs.rm(path.resolve(filePath));
+      await db.file.delete({
+        where: {
+          id: data.fileId,
+        },
+      });
+      res.redirect("/files");
+      return;
+    } catch (e) {
+      // console.log("filesController -> fileDeletePost() -> Error", e);
+      next(e);
+      return;
+    }
   }),
 ];

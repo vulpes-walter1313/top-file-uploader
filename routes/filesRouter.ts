@@ -10,4 +10,7 @@ router.get("/:fileId", filesController.fileGet);
 router.get("/:fileId/update", filesController.fileUpdateGet);
 router.post("/:fileId/update", filesController.fileUpdatePost);
 
+router.get("/:fileId/delete", filesController.fileDeleteGet);
+router.post("/:fileId/delete", filesController.fileDeletePost);
+
 export default router;
