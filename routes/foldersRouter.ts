@@ -16,4 +16,7 @@ router.post("/:folderId/upload", foldersController.folderUploadPost);
 router.get("/:folderId/update", foldersController.folderUpdateGet);
 router.post("/:folderId/update", foldersController.folderUpdatePost);
 
+router.get("/:folderId/delete", foldersController.folderDeleteGet);
+router.post("/:folderId/delete", foldersController.folderDeletePost);
+
 export default router;

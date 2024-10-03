@@ -18,6 +18,8 @@ import {
 } from "../middleware/utils";
 import { Prisma } from "@prisma/client";
 import he from "he";
+import fs from "node:fs/promises";
+import path from "node:path";
 
 // /folders
 export const foldersGet = [
@@ -453,5 +455,134 @@ export const folderUpdatePost = [
       },
     });
     res.redirect(`/folders/${folder.id}`);
+  }),
+];
+
+// GET /folders/:folderId/delete
+export const folderDeleteGet = [
+  isLoggedIn,
+  injectDateTimeIntoLocals,
+  injectFormatBytesIntoLocals,
+  injectHEIntoLocals,
+  param("folderId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+    if (!valResult.isEmpty()) {
+      next(new HttpError("folderId is not a valid id", 400));
+      return;
+    }
+
+    const folder = await db.folder.findUnique({
+      where: {
+        id: data.folderId,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        createdBy: true,
+        createdAt: true,
+        updatedAt: true,
+        files: {
+          orderBy: {
+            updatedAt: "desc",
+          },
+          take: 9,
+        },
+      },
+    });
+
+    if (!folder) {
+      next(new HttpError("Folder does not exist", 404));
+      return;
+    }
+    const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+
+    if (!canView) {
+      next(new HttpError("You are not athorized to access this resource", 403));
+      return;
+    }
+
+    res.render("folderDelete", {
+      title: `Delete ${he.decode(folder.name)}?`,
+      folder,
+    });
+  }),
+];
+
+// POST /folders/:folderId/delete
+export const folderDeletePost = [
+  isLoggedIn,
+  param("folderId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("folderId is not a valid id", 400));
+      return;
+    }
+
+    const folder = await db.folder.findUnique({
+      where: {
+        id: data.folderId,
+      },
+    });
+
+    if (!folder) {
+      next(new HttpError("Folder does not exist", 404));
+      return;
+    }
+
+    const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+
+    if (!canView) {
+      next(new HttpError("You are not authorized to perform this action", 403));
+      return;
+    }
+
+    const filesInFolder = await db.file.findMany({
+      where: {
+        folderId: folder.id,
+      },
+    });
+    if (filesInFolder.length > 0) {
+      try {
+        const filesToDelete = filesInFolder.map((file) => file.fileUrl);
+        await Promise.all(
+          filesToDelete.map((fileUrl) => {
+            return fs.rm(path.resolve(`./public${fileUrl}`));
+          }),
+        );
+        const deleteFiles = db.file.deleteMany({
+          where: {
+            folderId: folder.id,
+          },
+        });
+
+        const deleteFolder = db.folder.delete({
+          where: {
+            id: folder.id,
+          },
+        });
+
+        await db.$transaction([deleteFiles, deleteFolder]);
+        res.status(200).redirect("/folders");
+      } catch (e) {
+        console.log("foldersController.ts -> folderDeletePost() -> Error", e);
+        next(e);
+        return;
+      }
+    } else {
+      // folder is empty of files.
+      await db.folder.delete({
+        where: {
+          id: folder.id,
+        },
+      });
+      res.status(200).redirect("/folders");
+      return;
+    }
   }),
 ];
