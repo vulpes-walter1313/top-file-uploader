@@ -654,13 +654,11 @@ export const folderSharePost = [
         return;
       }
 
-      res
-        .status(400)
-        .render("folderShare", {
-          title: "Create a Folder Share",
-          folder,
-          validErrors,
-        });
+      res.status(400).render("folderShare", {
+        title: "Create a Folder Share",
+        folder,
+        validErrors,
+      });
       return;
     }
     // validation is OK
