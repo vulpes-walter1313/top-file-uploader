@@ -154,6 +154,7 @@ export const dashboardGet = [
       select: {
         id: true,
         createdAt: true,
+        expiresAt: true,
         folderShared: {
           select: {
             name: true,
