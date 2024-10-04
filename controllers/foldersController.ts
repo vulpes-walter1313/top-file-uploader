@@ -586,3 +586,105 @@ export const folderDeletePost = [
     }
   }),
 ];
+
+// GET /folders/:folderId/share
+export const folderShareGet = [
+  isLoggedIn,
+  param("folderId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("folderId is not a valid id", 400));
+      return;
+    }
+    const folder = await db.folder.findUnique({
+      where: {
+        id: data.folderId,
+      },
+    });
+    if (!folder) {
+      next(new HttpError("Folder does not exist", 404));
+      return;
+    }
+    const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+
+    if (!canView) {
+      next(new HttpError("You are not authorized to access this folder", 403));
+      return;
+    }
+
+    res.render("folderShare", { title: "Create a folder share", folder });
+    return;
+  }),
+];
+
+// POST /folders/:folderId/share
+export const folderSharePost = [
+  isLoggedIn,
+  injectHEIntoLocals,
+  param("folderId").isUUID(),
+  body("expires_in")
+    .custom((val) => {
+      return ["15m", "1h", "6h", "1d", "5d", "1w", "2w", "1mo"].includes(val);
+    })
+    .withMessage("Invalid expires_in value"),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+    if (!valResult.isEmpty()) {
+      const validErrors = valResult.mapped();
+      if (validErrors.folderId) {
+        next(new HttpError("folderId is not a valid id", 400));
+        return;
+      }
+      const folder = await db.folder.findUnique({
+        where: { id: data.folderId },
+      });
+      if (!folder) {
+        next(new HttpError("Folder does not exist", 404));
+        return;
+      }
+      const canView = req.user?.isAdmin || req.user?.id === folder.createdBy;
+      if (!canView) {
+        next(
+          new HttpError("You are not authorized to perform this action", 403),
+        );
+        return;
+      }
+
+      res
+        .status(400)
+        .render("folderShare", {
+          title: "Create a Folder Share",
+          folder,
+          validErrors,
+        });
+      return;
+    }
+    // validation is OK
+    // create a hash that maps the options to actual milliseconds
+    const timeOptions = new Map();
+    timeOptions.set("15m", 15 * 60 * 1000);
+    timeOptions.set("1h", 60 * 60 * 1000);
+    timeOptions.set("6h", 6 * 60 * 60 * 1000);
+    timeOptions.set("1d", 24 * 60 * 60 * 1000);
+    timeOptions.set("5d", 5 * 24 * 60 * 60 * 1000);
+    timeOptions.set("1w", 7 * 24 * 60 * 60 * 1000);
+    timeOptions.set("2w", 14 * 24 * 60 * 60 * 1000);
+    timeOptions.set("1m", 30 * 24 * 60 * 60 * 1000);
+    // create the expires_in Date
+    const expiresIn = new Date(Date.now() + timeOptions.get(data.expires_in));
+
+    // add share to folder with folderId, expiredAt, createdBy
+    const share = await db.share.create({
+      data: {
+        folderId: data.folderId,
+        expiresAt: expiresIn,
+        createdBy: req.user?.id!,
+      },
+    });
+    res.status(200).redirect(`/my-shares`);
+  }),
+];

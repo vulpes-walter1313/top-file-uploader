@@ -19,4 +19,7 @@ router.post("/:folderId/update", foldersController.folderUpdatePost);
 router.get("/:folderId/delete", foldersController.folderDeleteGet);
 router.post("/:folderId/delete", foldersController.folderDeletePost);
 
+router.get("/:folderId/share", foldersController.folderShareGet);
+router.post("/:folderId/share", foldersController.folderSharePost);
+
 export default router;

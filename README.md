@@ -298,7 +298,7 @@ This page will have a form that sets up the the share duration.
   - 5d
   - 1w
   - 2w
-  - 1m
+  - 1mo
 
 ## POST `/folders/:folderId/share`
 
