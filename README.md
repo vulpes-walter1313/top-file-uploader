@@ -109,12 +109,13 @@ The routes will be the following:
 26. GET `/files/:fileId/delete`
 27. POST `/files/:fileId/delete`
 28. GET `/shares/:shareId`
-29. GET `/my-shares`
-30. POST `/my-shares/:shareId/delete`
-31. GET `/account`
-32. POST `/account/info`
-33. POST `/account/email`
-34. POST `/account/password`
+29. GET `/shares/:shareId/download/:fileId`
+30. GET `/my-shares`
+31. POST `/my-shares/:shareId/delete`
+32. GET `/account`
+33. POST `/account/info`
+34. POST `/account/email`
+35. POST `/account/password`
 
 ## GET `/` homepage
 
@@ -386,6 +387,18 @@ Page attribute:
 - accessible to everyone
 
 This page has all the files from the folder being shared and can let the user download each file individually. If we can do it in a reasonable time, i want to see if we can implement a "download all" button to download all files as a zip.
+
+## GET `/shares/:shareId/download/:fileId`
+
+This route will verify:
+
+- That the share is active
+- that the file requested lives inside the share
+- sendFile if everything is okay
+- return 404 if share is not active
+- return 403 if file is not in share
+
+Because this route could lead to a blank page, the route should be given a callback url to go back to the previous page.
 
 ## GET `/my-shares`
 

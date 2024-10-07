@@ -10,6 +10,7 @@ import path from "node:path";
 import indexRouter from "./routes/indexRouter";
 import foldersRouter from "./routes/foldersRouter";
 import filesRouter from "./routes/filesRouter";
+import sharesRouter from "./routes/sharesRouter";
 import session from "express-session";
 import passport from "passport";
 import LocalStrategy from "passport-local";
@@ -20,6 +21,7 @@ import logger from "morgan";
 import helmet from "helmet";
 import compression from "compression";
 import { rateLimit } from "express-rate-limit";
+import cron from "node-cron";
 
 const app = express();
 const PORT = parseInt(process.env.PORT || "3000");
@@ -110,6 +112,7 @@ app.use((req, res, next) => {
 app.use("/", indexRouter);
 app.use("/folders", foldersRouter);
 app.use("/files", filesRouter);
+app.use("/shares", sharesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -169,22 +172,53 @@ function onListening() {
   console.log("Listening on " + bind);
 }
 
+// cron jobs
+
+const cleanOutShares = cron.schedule("*/1 * * * *", async () => {
+  console.log("cleaning out old shares..");
+  await db.share.deleteMany({
+    where: {
+      expiresAt: {
+        lte: new Date(Date.now()),
+      },
+    },
+  });
+});
+cleanOutShares.start();
+
+//graceful shutdowns
 process.on("SIGHUP", async () => {
   await db.$disconnect();
+  cleanOutShares.stop();
+  server.close((err) => {
+    console.log(err);
+  });
   process.exit(1);
 });
 
 process.on("SIGINT", async () => {
   await db.$disconnect();
+  cleanOutShares.stop();
+  server.close((err) => {
+    console.log(err);
+  });
   process.exit(1);
 });
 
 process.on("SIGTERM", async () => {
   await db.$disconnect();
+  cleanOutShares.stop();
+  server.close((err) => {
+    console.log(err);
+  });
   process.exit(1);
 });
 
 process.on("exit", async () => {
   await db.$disconnect();
+  cleanOutShares.stop();
+  server.close((err) => {
+    console.log(err);
+  });
   process.exit(0);
 });
