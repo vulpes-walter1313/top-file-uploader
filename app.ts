@@ -11,6 +11,7 @@ import indexRouter from "./routes/indexRouter";
 import foldersRouter from "./routes/foldersRouter";
 import filesRouter from "./routes/filesRouter";
 import sharesRouter from "./routes/sharesRouter";
+import mySharesRouter from "./routes/mySharesRouter";
 import session from "express-session";
 import passport from "passport";
 import LocalStrategy from "passport-local";
@@ -113,6 +114,7 @@ app.use("/", indexRouter);
 app.use("/folders", foldersRouter);
 app.use("/files", filesRouter);
 app.use("/shares", sharesRouter);
+app.use("/my-shares", mySharesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

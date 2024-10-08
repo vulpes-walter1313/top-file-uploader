@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/head") %>
+  <script src="/javascript/shareCopyBtn.js" defer></script>
+</head>
+<body class="bg-slate-50">
+  <%- include("partials/navbar") %>
+  <section class="p-4 flex flex-col gap-10 py-14 items-center justify-center bg-slate-50 md:py-20">
+    <div class="flex flex-col gap-6">
+      <h1 class="text-2xl font-bold text-slate-950 md:text-4xl md:text-center"><%= decode(locals.currentUser.firstName)%>&apos;s shares</h1>
+      <% if (locals.query) { %>
+        <p class="text-lg text-slate-700">Searching for &apos;<%= locals.query %>&apos;</p>
+      <% } %>
+    </div>
+    <div class="grid gap w-full max-w-screen-lg mx-auto md:grid-cols-8">
+      <aside class="flex flex-col items-start gap-8 p-6 md:col-span-2">
+        <div class="flex flex-col gap-4 items-start">
+          <p class="text-slate-900">To upload a file, go to the folder you want to add the files in.</p>
+          <a href="/folders" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Go To Folders</a>
+        </div>
+        <form action="/my-shares" method="get" class="flex flex-col items-start gap-4 w-full">
+          <div class="flex flex-col gap-2 justify-start">
+            <label class="text-sm text-slate-700" for="limit">Results per page</label>
+            <input
+              type="number"
+              name="limit"
+              id="limit"
+              max="20"
+              min="5"
+              value="<%= locals.limit ? locals.limit : "10" %>"
+              class="text-slate-900 border border-slate-300 rounded-md w-32 px-4 py-2"/>
+              <% if (locals.validErrors?.limit) { %>
+                <p class="p-2 border border-red-200 bg-red-50 text-red-800 rounded-md text-sm"><%= locals.validErrors?.limit?.msg %></p>
+              <% } %>
+          </div>
+          <div class="flex flex-col gap-2 justify-start">
+            <label class="text-sm text-slate-700" for="q">Search by Name</label>
+            <input
+              type="text"
+              name="q"
+              id="q"
+              maxlength="50"
+              class="text-slate-900 w-full border border-slate-300 rounded-md px-4 py-2"
+              value="<%= locals.query ? locals.query : "" %>"/>
+              <% if (locals.validErrors?.q) { %>
+                <p class="p-2 border border-red-200 bg-red-50 text-red-800 rounded-md text-sm"><%= locals.validErrors?.q?.msg %></p>
+              <% } %>
+          </div>
+          <button type="submit" class="bg-slate-50 text-slate-800 border-2 border-slate-800 w-full text-lg px-6 py-2 rounded-xl block leading-none">Search</button>
+        </form>
+      </aside>
+      <main class="md:col-span-6">
+        <!-- Shares-->
+        <div class="p-6 flex flex-col gap-8 overflow-clip">
+          <h2 class="text-lg text-slate-800">Recent Shares</h2>
+          <div class="flex flex-col gap-3 py-2">
+            <% if (shares.length > 0) { %>
+              <% shares.map(share => { %>
+                <div class="bg-white shadow-md w-fill border border-slate-300 rounded-md p-3 flex justify-between items-center flex-wrap gap-3 text-slate-900">
+                  <svg class="fill-slate-900 h-14 w-14" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M64 480H448c35.3 0 64-28.7 64-64V160c0-35.3-28.7-64-64-64H288c-10.1 0-19.6-4.7-25.6-12.8L243.2 57.6C231.1 41.5 212.1 32 192 32H64C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64z"></path></svg>
+                  <div>
+                    <p class="test-sm font-medium text-slate-600">Folder Share</p>
+                    <a href="/shares/<%= share.id %>">
+                      <p class="test-lg text-slate-800"><%= decode(share.folderShared.name) %></p>
+                    </a>
+                  </div>
+                  <div>
+                    <p class="test-sm font-medium text-slate-600">Created on</p>
+                    <p class="test-lg text-slate-800"><%= DateTime.fromJSDate(share.createdAt).toLocaleString(DateTime.DATE_MED) %> </p>
+                  </div>
+                  <div>
+                    <p class="test-sm font-medium text-slate-600">Expires on</p>
+                    <p class="test-lg text-slate-800"><%= DateTime.fromJSDate(share.expiresAt).toLocaleString(DateTime.DATETIME_MED) %> </p>
+                  </div>
+                  <div class="flex gap-2 justify-center items-center">
+                    <div class="bg-slate-100 border border-slate-300 rounded-md p-2 hover:cursor-pointer" data-url="http://localhost:3000/shares/<%= share.id %>">
+                      <svg class="fill-slate-900 w-4 h-4" stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M320 448v40c0 13.255-10.745 24-24 24H24c-13.255 0-24-10.745-24-24V120c0-13.255 10.745-24 24-24h72v296c0 30.879 25.121 56 56 56h168zm0-344V0H152c-13.255 0-24 10.745-24 24v368c0 13.255 10.745 24 24 24h272c13.255 0 24-10.745 24-24V128H344c-13.2 0-24-10.8-24-24zm120.971-31.029L375.029 7.029A24 24 0 0 0 358.059 0H352v96h96v-6.059a24 24 0 0 0-7.029-16.97z"></path></svg>
+                    </div>
+                    <form action="/my-shares/<%= share.id %>/delete" method="post">
+                      <button aria-label="delete" class="bg-red-50 text-red-800 leading-none p-2 border border-red-100 rounded-md">
+                        <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"></path></svg>
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p class="text-slate-700">No shares have been created yet.</p>
+            <% } %>
+          </div>
+        </div>
+        <div class="flex gap-4 justify-center">
+          <% locals.pagesArr.map( item => { %>
+            <a href="<%- item.href %>" class="leading-none text-slate-800 border border-slate-300 rounded-md bg-white shadow-md p-2"><%= item.num %></a>
+          <% }) %>
+        </div>
+     </main>
+    </div>
+  </section>
+</body>
+</html>

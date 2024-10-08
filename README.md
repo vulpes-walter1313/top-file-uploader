@@ -406,7 +406,7 @@ Page attributes:
 
 - must be logged in
 
-This page shows active shares. much like `/files` and `/folders`.
+This page shows active shares. Much like `/files` and `/folders`. This page is also paginated as there could be a lot of shares.
 
 ## GET `/my-shares/:shareId/delete`
 
