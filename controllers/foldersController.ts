@@ -590,6 +590,7 @@ export const folderDeletePost = [
 // GET /folders/:folderId/share
 export const folderShareGet = [
   isLoggedIn,
+  injectHEIntoLocals,
   param("folderId").isUUID(),
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const valResult = validationResult(req);

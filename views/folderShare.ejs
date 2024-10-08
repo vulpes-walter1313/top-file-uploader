@@ -12,7 +12,7 @@
     <form action="/folders/<%= folder.id %>/share" method="POST" class="p-6 flex flex-col gap-4 w-full max-w-sm bg-white border border-slate-300 shadow-lg rounded-xl">
       <div class="flex flex-col gap-1 relative">
         <p for="name" class="text-slate-800">Folder You Are Sharing</p>
-        <p class="text-slate-900 text-lg font-bold"><%= folder.name %> </p>
+        <p class="text-slate-900 text-lg font-bold"><%= decode(folder.name) %> </p>
       </div>
       <div class="flex flex-col gap-1 relative">
         <label for="expires_in" class="text-slate-800">Folder Description <span class="text-xs text-slate-600">(256 characters)</span></label>
