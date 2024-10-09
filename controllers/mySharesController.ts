@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { type Request, type Response, type NextFunction } from "express";
-import { matchedData, query, validationResult } from "express-validator";
+import { matchedData, param, query, validationResult } from "express-validator";
 import db from "../db/db";
 import { isLoggedIn } from "../middleware/auth";
 import {
@@ -8,6 +8,7 @@ import {
   injectHEIntoLocals,
 } from "../middleware/utils";
 import he from "he";
+import HttpError from "../lib/HttpError";
 export const mySharesGet = [
   isLoggedIn,
   injectHEIntoLocals,
@@ -105,5 +106,40 @@ export const mySharesGet = [
       limit,
       pagesArr,
     });
+  }),
+];
+
+export const deleteSharePost = [
+  isLoggedIn,
+  param("shareId").isUUID(),
+  asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const valResult = validationResult(req);
+    const data = matchedData(req);
+
+    if (!valResult.isEmpty()) {
+      next(new HttpError("shareId is not a valid id", 400));
+      return;
+    }
+    const share = await db.share.findUnique({
+      where: {
+        id: data.shareId,
+      },
+    });
+    if (!share) {
+      next(new HttpError("Share not found", 404));
+      return;
+    }
+    const canView = req.user?.isAdmin || req.user?.id === share.createdBy;
+    if (!canView) {
+      next(new HttpError("You are not authorized to perform this action", 403));
+      return;
+    }
+
+    await db.share.delete({
+      where: {
+        id: data.shareId,
+      },
+    });
+    res.status(200).redirect("/my-shares");
   }),
 ];

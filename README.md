@@ -408,15 +408,6 @@ Page attributes:
 
 This page shows active shares. Much like `/files` and `/folders`. This page is also paginated as there could be a lot of shares.
 
-## GET `/my-shares/:shareId/delete`
-
-Page Attributes:
-
-- must be logged in
-- must be owner or be admin
-
-This page is a delete confirmation page for the share in question.
-
 ## POST `/my-shares/:shareId/delete`
 
 Route Attributes:
@@ -424,7 +415,7 @@ Route Attributes:
 - must be logged in
 - must be owner or be admin
 
-This route will delete a share if user has permission. This does not affect the folder and files in the share. only the records in the shares DB table.
+This route will delete a share if user has permission. This does not affect the folder and files in the share. Only the records in the shares DB table. on success, redirects to `/my-shares`.
 
 ## GET `/account`
 
