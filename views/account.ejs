@@ -18,7 +18,7 @@
       <div class="flex flex-col gap-6 justify-center w-full max-w-xl bg-white border border-slate-300 rounded-xl shadow-lg p-6">
         <h2 class="text-3xl font-bold">Personal information</h2>
         <form action="/account/info" method="post" class="flex flex-col gap-6 items-start">
-          <div class="flex gap-2 w-full">
+          <div class="flex flex-col sm:flex-row gap-2 w-full">
             <div class="flex flex-col gap-2 w-full">
               <label for="first_name" class="text-slate-700 text-sm">First Name</label>
               <input type="text" id="first_name" name="first_name" value="<%= locals.currentUser.firstName %>" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
@@ -41,7 +41,7 @@
       <div class="flex flex-col gap-6 justify-center w-full max-w-xl bg-white border border-slate-300 rounded-xl shadow-lg p-6">
         <h2 class="text-3xl font-bold">Change your Email</h2>
         <form action="/account/email" method="post" class="flex flex-col gap-6 items-start">
-          <div class="flex gap-2 w-full">
+          <div class="flex flex-col sm:flex-row gap-2 w-full">
             <div class="flex flex-col gap-2 w-full">
               <label for="email" class="text-slate-700 text-sm">Email</label>
               <input type="email" id="email" name="email" value="<%= locals.currentUser.email %>" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
@@ -64,7 +64,7 @@
       <div class="flex flex-col gap-6 justify-center w-full max-w-xl bg-white border border-slate-300 rounded-xl shadow-lg p-6">
         <h2 class="text-3xl font-bold">Change Password</h2>
         <form action="/account/password" method="post" class="flex flex-col gap-6 items-start">
-          <div class="flex gap-2 w-full">
+          <div class="flex flex-col sm:flex-row gap-2 w-full">
             <div class="flex flex-col gap-2 w-full">
               <label for="old_password" class="text-slate-700 text-sm">Old Password</label>
               <input type="password" id="old_password" name="old_password" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
