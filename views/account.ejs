@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include("partials/head") %>
+</head>
+<body class="bg-slate-50">
+  <%- include("partials/navbar") %>
+  <section class="p-4 flex flex-col gap-10 py-14 items-center justify-center bg-slate-50 md:py-20">
+    <div class="flex flex-col gap-2 w-full max-w-xl">
+      <h1 class="text-3xl font-bold text-slate-950 md:text-5xl">Account Settings</h1>
+      <p class="text-slate-700 text-lg">Edit your account settings here.</p>
+      <% if (locals.changeMessage) { %>
+        <p class="bg-green-50 text-green-900 text-lg px-4 py-2 rounded-mg border border-green-200"><%= locals.changeMessage %></p>
+      <% } %>
+    </div>
+    <div class="flex flex-col gap-6 w-full max-w-xl">
+      <!-- Personal Information--> 
+      <div class="flex flex-col gap-6 justify-center w-full max-w-xl bg-white border border-slate-300 rounded-xl shadow-lg p-6">
+        <h2 class="text-3xl font-bold">Personal information</h2>
+        <form action="/account/info" method="post" class="flex flex-col gap-6 items-start">
+          <div class="flex gap-2 w-full">
+            <div class="flex flex-col gap-2 w-full">
+              <label for="first_name" class="text-slate-700 text-sm">First Name</label>
+              <input type="text" id="first_name" name="first_name" value="<%= locals.currentUser.firstName %>" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.first_name) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.first_name.msg %></p>
+              <% } %>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="last_name" class="text-slate-700 text-sm">Last Name</label>
+              <input type="text" id="last_name" name="last_name" value="<%= locals.currentUser.lastName %>" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.last_name) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.last_name.msg %></p>
+              <% } %>
+            </div>
+          </div>
+          <button type="submit" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Save Changes</button>
+        </form>
+      </div>
+      <!-- Email -->
+      <div class="flex flex-col gap-6 justify-center w-full max-w-xl bg-white border border-slate-300 rounded-xl shadow-lg p-6">
+        <h2 class="text-3xl font-bold">Change your Email</h2>
+        <form action="/account/email" method="post" class="flex flex-col gap-6 items-start">
+          <div class="flex gap-2 w-full">
+            <div class="flex flex-col gap-2 w-full">
+              <label for="email" class="text-slate-700 text-sm">Email</label>
+              <input type="email" id="email" name="email" value="<%= locals.currentUser.email %>" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.email) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.email.msg %></p>
+              <% } %>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="confirm_email" class="text-slate-700 text-sm">Confirm New Email</label>
+              <input type="email" id="confirm_email" name="confirm_email" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.confirm_email) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.confirm_email.msg %></p>
+              <% } %>
+            </div>
+          </div>
+          <button type="submit" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Save Changes</button>
+        </form>
+      </div>
+      <!-- Password -->
+      <div class="flex flex-col gap-6 justify-center w-full max-w-xl bg-white border border-slate-300 rounded-xl shadow-lg p-6">
+        <h2 class="text-3xl font-bold">Change Password</h2>
+        <form action="/account/password" method="post" class="flex flex-col gap-6 items-start">
+          <div class="flex gap-2 w-full">
+            <div class="flex flex-col gap-2 w-full">
+              <label for="old_password" class="text-slate-700 text-sm">Old Password</label>
+              <input type="password" id="old_password" name="old_password" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.old_password) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.old_password.msg %></p>
+              <% } %>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="new_password" class="text-slate-700 text-sm">New Password</label>
+              <input type="password" id="new_password" name="new_password" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.new_password) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.new_password.msg %></p>
+              <% } %>
+            </div>
+            <div class="flex flex-col gap-2 w-full">
+              <label for="confirm_new_password" class="text-slate-700 text-sm">Confirm New Password</label>
+              <input type="password" id="confirm_new_password" name="confirm_new_password" class="text-slate-900 bg-slate-50 border border-slate-300 rounded-md px-4 py-2 w-full"/>
+              <% if (locals.validErrors?.confirm_new_password) { %>
+                <p class="bg-red-50 text-red-800 px-4 py-2 rounded-md border border-red-200"><%= locals.validErrors?.confirm_new_password.msg %></p>
+              <% } %>
+            </div>
+          </div>
+          <button type="submit" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
