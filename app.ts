@@ -12,6 +12,7 @@ import foldersRouter from "./routes/foldersRouter";
 import filesRouter from "./routes/filesRouter";
 import sharesRouter from "./routes/sharesRouter";
 import mySharesRouter from "./routes/mySharesRouter";
+import accountRouter from "./routes/accountRouter";
 import session from "express-session";
 import passport from "passport";
 import LocalStrategy from "passport-local";
@@ -56,7 +57,6 @@ app.use(
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       secure: process.env.NODE_ENV === "production" ? true : false,
-      partitioned: true,
       sameSite: "lax",
     },
     store: new PrismaSessionStore(db, {
@@ -111,6 +111,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/", indexRouter);
+app.use("/account", accountRouter);
 app.use("/folders", foldersRouter);
 app.use("/files", filesRouter);
 app.use("/shares", sharesRouter);

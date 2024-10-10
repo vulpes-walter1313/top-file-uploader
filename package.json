@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prettier": "prettier . --write",
-    "dev": "tsx watch ./app.ts",
+    "dev": "NODE_ENV=development tsx watch ./app.ts",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "tw:watch": "tailwindcss -i ./public/stylesheets/tailwind.css -o ./public/stylesheets/styles.css --watch",
