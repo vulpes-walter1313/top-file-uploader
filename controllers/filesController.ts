@@ -44,9 +44,14 @@ export const filesGet = [
         where: { createdBy: req.user?.id },
       });
       const totalPages = Math.ceil(totalFiles < 1 ? 1 : totalFiles / 10);
-      const pagesArr: number[] = Array.from({ length: totalPages }).map(
-        (_, idx) => idx + 1,
-      );
+      const pagesArr: { href: string; num: number }[] = Array.from({
+        length: totalPages,
+      }).map((_, idx) => {
+        return {
+          href: `/files?limit=10&page=${idx + 1}`,
+          num: idx + 1,
+        };
+      });
       const files = await db.file.findMany({
         where: {
           createdBy: req.user?.id,
@@ -102,14 +107,14 @@ export const filesGet = [
     const pagesArr: { href: string; num: number }[] = Array.from({
       length: totalPages,
     }).map((_, idx) => {
-      const url = new URL("http://localhost:3000/files");
+      const urlParams = new URLSearchParams();
       if (data.q) {
-        url.searchParams.set("q", data.q);
+        urlParams.set("q", data.q);
       }
-      url.searchParams.set("limit", limit.toString());
-      url.searchParams.set("page", (idx + 1).toString());
+      urlParams.set("limit", limit.toString());
+      urlParams.set("page", (idx + 1).toString());
       return {
-        href: url.href,
+        href: `/files?${urlParams.toString()}`,
         num: idx + 1,
       };
     });

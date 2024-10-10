@@ -95,7 +95,7 @@ export const mySharesGet = [
     const pagesArr = Array.from({ length: totalPages }).map((_, idx) => {
       return {
         num: idx + 1,
-        href: `/my-shares?page=${idx + 1}&limit=${limit}${queryString ? `&q=${queryString}` : ""}`,
+        href: `/my-shares?page=${idx + 1}&limit=${limit}${queryString ? `&${queryString}` : ""}`,
       };
     });
     res.render("myShares", {
