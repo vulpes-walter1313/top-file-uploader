@@ -56,12 +56,10 @@ export const accountInfoChangePost = [
         lastName: data.last_name,
       },
     });
-    res
-      .status(200)
-      .render("account", {
-        title: "Your Account Settings",
-        changeMessage: "Your name has been updated!",
-      });
+    res.status(200).render("account", {
+      title: "Your Account Settings",
+      changeMessage: "Your name has been updated!",
+    });
   }),
 ];
 
@@ -105,12 +103,10 @@ export const accountEmailChangePost = [
       },
     });
 
-    res
-      .status(200)
-      .render("account", {
-        title: "Your Account Settings",
-        changeMessage: "Your email has been updated!",
-      });
+    res.status(200).render("account", {
+      title: "Your Account Settings",
+      changeMessage: "Your email has been updated!",
+    });
   }),
 ];
 
@@ -163,11 +159,9 @@ export const accountPasswordChangePost = [
         password: newPasswordHash,
       },
     });
-    res
-      .status(200)
-      .render("account", {
-        title: "Your Account Settings",
-        changeMessage: "Your Password has been updated",
-      });
+    res.status(200).render("account", {
+      title: "Your Account Settings",
+      changeMessage: "Your Password has been updated",
+    });
   }),
 ];
