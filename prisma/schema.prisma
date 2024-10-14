@@ -38,19 +38,20 @@ model Folder {
 }
 
 model File {
-  id          String  @id @default(uuid())
-  fileUrl     String  @unique
-  name        String  @db.VarChar(64)
-  description String? @db.VarChar(256)
-  extName     String  @db.VarChar(24)
-  fileType    String  @db.VarChar(24)
-  size        Int
-  createdBy   String
-  owner       User    @relation(fields: [createdBy], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  folderId    String
-  inFolder    Folder  @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  createdAt   DateTime @default(now()) @db.Timestamptz()
-  updatedAt   DateTime @default(now()) @db.Timestamptz()
+  id            String   @id @default(uuid())
+  fileUrl       String   @unique
+  name          String   @db.VarChar(64)
+  description   String?  @db.VarChar(256)
+  cloudPublicId String   @db.Text
+  extName       String   @db.VarChar(24)
+  fileType      String   @db.VarChar(24)
+  size          Int
+  createdBy     String
+  owner         User     @relation(fields: [createdBy], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  folderId      String
+  inFolder      Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  createdAt     DateTime @default(now()) @db.Timestamptz()
+  updatedAt     DateTime @default(now()) @db.Timestamptz()
 }
 
 model Share {
