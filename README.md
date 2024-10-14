@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS files (
 	file_url TEXT NOT NULL UNIQUE,
 	name TEXT NOT NULL,
 	description VARCHAR(256),
+	cloud_public_id TEXT NOT NULL,
 	ext_name VARCHAR(20) NOT NULL,
 	file_type VARCHAR(20) NOT NULL,
 	size BIGINT NOT NULL,

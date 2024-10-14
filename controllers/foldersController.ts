@@ -20,6 +20,7 @@ import { Prisma } from "@prisma/client";
 import he from "he";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { v2 as cloudinary } from "cloudinary";
 
 // /folders
 export const foldersGet = [
@@ -306,26 +307,38 @@ export const folderUploadPost = [
     }
 
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-      const uploadData = req.files.map((file) => {
-        return {
-          fileUrl: file.path!.slice(6),
-          name: file.originalname.split(".")[0],
-          extName: file.originalname.split(".").pop()!,
-          fileType: file.mimetype!,
-          size: file.size!,
-          createdBy: req.user?.id!,
-          folderId: folder.id,
-        };
-      });
-      await db.file.createMany({
-        data: uploadData,
-      });
+      // upload files to cloudinary and collect urls
+      for (let file of req.files) {
+        const result = await cloudinary.uploader.upload(file.path, {
+          public_id: file.filename.split(".")[0],
+          display_name: file.originalname.split(".")[0],
+          overwrite: true,
+        });
+        console.log("cloudinary result: ", result);
+        // insert to db.
+        await db.file.create({
+          data: {
+            cloudPublicId: result.public_id,
+            fileUrl: result.secure_url,
+            name: file.originalname.split(".")[0],
+            extName: file.originalname.split(".").pop()!,
+            fileType: file.mimetype,
+            size: result.bytes,
+            createdBy: req.user?.id!,
+            folderId: folder.id,
+          },
+        });
+        // delete files from fileuploads
+        await fs.rm(path.resolve(`./public/fileuploads/${file.filename}`));
+      }
+
       await db.folder.update({
         where: { id: folder.id },
         data: {
           updatedAt: new Date(Date.now()),
         },
       });
+
       res.redirect(`/folders/${folder.id}`);
       return;
     } else {
