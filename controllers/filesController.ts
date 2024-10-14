@@ -17,8 +17,7 @@ import {
   injectHEIntoLocals,
 } from "../middleware/utils";
 import { Prisma } from "@prisma/client";
-import fs from "node:fs/promises";
-import path from "node:path";
+import { v2 as cloudinary } from "cloudinary";
 
 export const filesGet = [
   isLoggedIn,
@@ -357,8 +356,7 @@ export const fileDeletePost = [
     }
 
     try {
-      const filePath = `./public${file.fileUrl}`;
-      await fs.rm(path.resolve(filePath));
+      await cloudinary.uploader.destroy(file.cloudPublicId);
       await db.file.delete({
         where: {
           id: data.fileId,
