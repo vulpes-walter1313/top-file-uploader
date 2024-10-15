@@ -311,12 +311,13 @@ export const folderUploadPost = [
       for (let file of req.files) {
         const result = await cloudinary.uploader.upload(file.path, {
           public_id: file.filename.split(".")[0],
+          resource_type: "auto",
           asset_folder: "top-fu",
           display_name: file.originalname.split(".")[0],
           overwrite: true,
           type: "private",
         });
-        console.log("cloudinary result: ", result);
+        // console.log("cloudinary result: ", result);
         // insert to db.
         await db.file.create({
           data: {
