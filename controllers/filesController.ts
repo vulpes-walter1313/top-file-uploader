@@ -356,7 +356,15 @@ export const fileDeletePost = [
     }
 
     try {
-      await cloudinary.uploader.destroy(file.cloudPublicId);
+      const destroyResponse = await cloudinary.uploader.destroy(
+        file.cloudPublicId,
+        {
+          type: "private",
+        },
+      );
+      if (destroyResponse.result !== "ok") {
+        throw new Error("Error in deleting file");
+      }
       await db.file.delete({
         where: {
           id: data.fileId,
