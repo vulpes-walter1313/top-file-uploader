@@ -314,7 +314,7 @@ export const folderUploadPost = [
           asset_folder: "top-fu",
           display_name: file.originalname.split(".")[0],
           overwrite: true,
-          type: "authenticated",
+          type: "private",
         });
         console.log("cloudinary result: ", result);
         // insert to db.
