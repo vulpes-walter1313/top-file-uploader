@@ -565,12 +565,12 @@ export const folderDeletePost = [
     });
     if (filesInFolder.length > 0) {
       try {
-        const filesToDelete = filesInFolder.map((file) => file.fileUrl);
-        await Promise.all(
-          filesToDelete.map((fileUrl) => {
-            return fs.rm(path.resolve(`./public${fileUrl}`));
-          }),
+        const filesToDelete = filesInFolder.map((file) => file.cloudPublicId);
+        const deleteAllResponse = await cloudinary.api.delete_resources(
+          filesToDelete,
+          { type: "private" },
         );
+        // console.log(deleteAllResponse);
         const deleteFiles = db.file.deleteMany({
           where: {
             folderId: folder.id,
