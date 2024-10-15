@@ -1,10 +1,4 @@
-import {
-  body,
-  matchedData,
-  param,
-  query,
-  validationResult,
-} from "express-validator";
+import { matchedData, param, validationResult } from "express-validator";
 import asyncHandler from "express-async-handler";
 import { type Request, type Response, type NextFunction } from "express";
 import HttpError from "../lib/HttpError";
@@ -14,8 +8,7 @@ import {
   injectFormatBytesIntoLocals,
   injectHEIntoLocals,
 } from "../middleware/utils";
-import path from "path";
-import slugify from "slugify";
+import { v2 as cloudinary } from "cloudinary";
 
 // GET /shares/:shareId
 export const shareGet = [
@@ -110,6 +103,8 @@ export const shareFileDownloadGet = [
                 fileType: true,
                 fileUrl: true,
                 size: true,
+                cloudPublicId: true,
+                extName: true,
               },
               orderBy: {
                 updatedAt: "desc",
@@ -130,17 +125,23 @@ export const shareFileDownloadGet = [
       next(new HttpError("File requested not available", 404));
       return;
     }
-    const filePathToDownload = path.resolve(
-      __dirname,
-      `../public/${fileRecord.fileUrl}`,
+    let type = "";
+    if (fileRecord.fileType.includes("image")) {
+      type = "image";
+    } else if (fileRecord.fileType.includes("video")) {
+      type = "video";
+    } else {
+      type = "raw";
+    }
+    const signedUrl = cloudinary.utils.private_download_url(
+      fileRecord.cloudPublicId,
+      fileRecord.extName,
+      {
+        resource_type: type,
+        attachment: true,
+      },
     );
-    const filename = `${slugify(fileRecord.name)}.${filePathToDownload.split(".").pop()}`;
-    res
-      .setHeader("Content-Disposition", `attachment; filename*="${filename}"`)
-      .sendFile(filePathToDownload, {}, (err) => {
-        if (err) {
-          return next(err);
-        }
-      });
+
+    res.redirect(signedUrl);
   }),
 ];
