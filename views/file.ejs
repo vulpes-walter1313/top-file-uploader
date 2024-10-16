@@ -43,7 +43,7 @@
         </div>
       </main>
       <aside class="flex flex-col gap-4 items-start p-6 md:col-span-2">
-        <a href="<%= file.fileUrl %>" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none" download>Download</a>
+        <a href="<%= file.fileUrl %>" class="bg-slate-800 text-slate-50 text-lg px-6 py-2 rounded-xl block leading-none" download target="_blank">Download</a>
         <a href="/files/<%= file.id %>/update" class="bg-slate-50 text-slate-800 border-2 border-slate-800 text-lg px-6 py-2 rounded-xl block leading-none">Edit File</a>
         <a href="/files/<%= file.id %>/delete" class="text-red-700 text-lg block leading-none">Delete File</a>
       </aside>
