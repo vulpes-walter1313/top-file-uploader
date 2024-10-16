@@ -18,6 +18,7 @@ import {
 } from "../middleware/utils";
 import { Prisma } from "@prisma/client";
 import { v2 as cloudinary } from "cloudinary";
+import { getResourceTypeFromMimeType } from "../lib/utils";
 
 export const filesGet = [
   isLoggedIn,
@@ -356,9 +357,11 @@ export const fileDeletePost = [
     }
 
     try {
+      const type = getResourceTypeFromMimeType(file.fileType);
       const destroyResponse = await cloudinary.uploader.destroy(
         file.cloudPublicId,
         {
+          resource_type: type,
           type: "private",
         },
       );

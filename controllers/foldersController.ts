@@ -21,6 +21,7 @@ import he from "he";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { v2 as cloudinary } from "cloudinary";
+import { getResourceTypeFromMimeType } from "../lib/utils";
 
 // /folders
 export const foldersGet = [
@@ -309,9 +310,10 @@ export const folderUploadPost = [
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       // upload files to cloudinary and collect urls
       for (let file of req.files) {
+        const type = getResourceTypeFromMimeType(file.mimetype);
         const result = await cloudinary.uploader.upload(file.path, {
           public_id: file.filename.split(".")[0],
-          resource_type: "auto",
+          resource_type: type,
           asset_folder: "top-fu",
           display_name: file.originalname.split(".")[0],
           overwrite: true,

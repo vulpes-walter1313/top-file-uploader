@@ -19,3 +19,13 @@ export function formatBytes(bytes: number, decimals = 2) {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 }
+
+export function getResourceTypeFromMimeType(type: string) {
+  if (type.includes("image") || type.includes("pdf")) {
+    return "image";
+  } else if (type.includes("video")) {
+    return "video";
+  } else {
+    return "raw";
+  }
+}
